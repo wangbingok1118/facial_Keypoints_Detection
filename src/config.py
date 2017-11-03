@@ -12,3 +12,5 @@ configure
 """
 
 originalDataPath = '/home/hduser0539/projectsData/privateProjectData/facial-keypoints-detection'
+
+IMAGE_SIZE = 96  # face images 96x96 pixels
