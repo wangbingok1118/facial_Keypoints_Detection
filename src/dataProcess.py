@@ -27,13 +27,20 @@ def loadData(fileName=None,test=False):
     if not test:
         # get label features and scale pixel coordinates by image range
         # because image 96*96, so feature value / 96
-        y = dataframe[feature_cols].values / 96.0
+        y = dataframe[feature_cols].values / float(config.IMAGE_SIZE)
         # permute (image, label) pairs for training
         X, y = sklearn.utils.shuffle(X, y)
     else:
         y = None
     return X, y
     pass
+#
+# def printFun(str=None,model=False):
+#     if not model:
+#         print(str)
+#     if model:
+#         if(os.path.exists(config.logPathAndName) == True):
+#             os.
 
 def main():
     pass
