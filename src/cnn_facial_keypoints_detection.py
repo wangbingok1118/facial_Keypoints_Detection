@@ -9,6 +9,10 @@ import dataProcess
 
 
 def cnnModel():
+    """
+    build model
+    :return:
+    """
     pass
 
 
