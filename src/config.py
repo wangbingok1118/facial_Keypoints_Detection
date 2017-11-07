@@ -21,6 +21,7 @@ validataionSize = 0.2
 mini_batch_size=32
 
 image_channels=1
+image_size = 96  # face images 96x96 pixels
 label_numbers=30
 filter_size = 3
 dropout_rate = 0.5
@@ -31,4 +32,3 @@ train_epcohs = 100
 # logPathAndName = os.path.join(logFilePath,logFileName)
 
 
-IMAGE_SIZE = 96  # face images 96x96 pixels

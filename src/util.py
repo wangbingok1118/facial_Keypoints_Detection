@@ -7,7 +7,7 @@ import facial_keypoints_detection
 """ Utils + constants to load data into tensorflow """
 
 # Program constants
-NUM_EPOCHS = 1000  # training epoch count
+NUM_EPOCHS = 20 # training epoch count
 EARLY_STOP_PATIENCE = 100  # epoch count before we stop if no improvement
 IMAGE_SIZE = 96  # face images 96x96 pixels
 VALIDATION_SIZE = 100  # number of samples in validation dataset
