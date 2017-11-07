@@ -182,9 +182,7 @@ def trainModelAndSaveModel(trainDataX=None,trainDataY=None,valiDataX=None,valiDa
     print("constructing tensorflow cnn  model and train it :::")
     train_x_node = tf.placeholder(tf.float32, shape=(config.mini_batch_size, config.image_size, config.image_size, config.image_channels))
     train_y_node = tf.placeholder(tf.float32, shape=(config.mini_batch_size, config.label_numbers))
-
     eval_x_node = tf.placeholder(tf.float32, shape=(config.mini_batch_size, config.image_size, config.image_size, config.image_channels))
-
     train_predict = cnnModel(data=train_x_node, train=True)
     eval_predict = cnnModel(data=eval_x_node, train=False)
     train_predict_y_square = tf.square(train_predict-train_y_node)
@@ -192,6 +190,7 @@ def trainModelAndSaveModel(trainDataX=None,trainDataY=None,valiDataX=None,valiDa
     train_loss = tf.reduce_mean(train_loss_sum)
     train_step = tf.train.AdamOptimizer().minimize(train_loss)
     init = tf.global_variables_initializer()
+    saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(init)
         print("start train cnn Model")
@@ -214,7 +213,37 @@ def trainModelAndSaveModel(trainDataX=None,trainDataY=None,valiDataX=None,valiDa
             validate_error = error_measure(predictions=validata_predict,labels=valiDataY)
             print("Epoch %d, train loss %.8f, validate loss %.8f"%(current_epoch,train_loss_result,validate_error))
             current_epoch += 1
+        if os.path.exists(config.modelPath)==False:
+            os.makedirs(config.modelPath)
+        saver.save(sess,os.path.join(config.modelPath,config.modelName))
         pass
+    pass
+
+def savetestResultToCsvFile(data=None):
+    # rescale predictions to pixel coordinates
+    needSaveData = data
+    needSaveData *= 96.0
+    needSaveData = needSaveData.clip(0, 96)
+    """
+    add temp for columns
+    """
+    tmpData = pd.read_csv(config.onlyGetColumnsFile)
+    columns = tmpData.columns.tolist()[:-1]
+    results = pd.DataFrame(needSaveData, columns=columns)
+    results.to_csv(config.testResultFileName, index=False)
+    print("Wrote test results to result_vecotrs.csv.")
+    pass
+
+def testModel(testData=None):
+    test_x_node = tf.placeholder(tf.float32, shape=(config.mini_batch_size, config.image_size, config.image_size, config.image_channels))
+    test_predict_op = cnnModel(data=test_x_node, train=False)
+    init = tf.global_variables_initializer()
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        sess.run(init)
+        saver.restore(sess,os.path.join(config.modelPath,config.modelName))
+        test_predict_result = eval_model_batchs(data=testData,sess=sess,eval_predict_op=test_predict_op,eval_node_placehold=test_x_node)
+        savetestResultToCsvFile(data=test_predict_result)
     pass
 
 
@@ -224,25 +253,27 @@ def train():
     print('loading training file')
     originalTrainX,originalTrainY = dataProcess.loadData(config.trainFilePath,test=False)
     print(originalTrainX.shape)
-    # load test data
-    print('loading test file')
-    testX,_ = dataProcess.loadData(config.testFilePath,test=True) # test data only have x value
     trainX,validationX,trainY,validationY = sklearn.model_selection.train_test_split(originalTrainX,originalTrainY,test_size=config.validataionSize)
     trainX_shape = trainX.shape[0]
     validationX_shape = validationX.shape[0]
-    testX_shape = testX.shape[0]
     print("trainX's shape is ",trainX_shape)
     print("validationX's shape is ",validationX_shape)
-    print("testX's shape is ",testX_shape)
     trainModelAndSaveModel(trainDataX=trainX,trainDataY=trainY,valiDataX=validationX,valiDataY=validationY)
     pass
 def test():
+    # load test data
+    print('loading test file')
+    testX, _ = dataProcess.loadData(config.testFilePath, test=True)  # test data only have x value
+    testX_shape = testX.shape[0]
+    print("testX's shape is ", testX_shape)
+    testModel(testData=testX)
     pass
 
 
 
 def main():
-    train()
+    #train()
+    test()
     pass
 
 
