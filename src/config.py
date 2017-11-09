@@ -39,6 +39,7 @@ train_epcohs = 1000
 #model save path
 modelPath = '../data/model'
 modelName = 'cnnModel'
+modelSummaryPath = '../data'
 # # log path
 # logFilePath = '../data'
 # logFileName = 'facial_keypoints_detection.log'

@@ -190,9 +190,12 @@ def trainModelAndSaveModel(trainDataX=None,trainDataY=None,valiDataX=None,valiDa
     train_loss = tf.reduce_mean(train_loss_sum)
     train_step = tf.train.AdamOptimizer().minimize(train_loss)
     init = tf.global_variables_initializer()
+    tf.summary.scalar('train_loss',train_loss)
+    merged_summary_op = tf.summary.merge_all()
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(init)
+        summary_writer = tf.summary.FileWriter(config.modelSummaryPath, graph=tf.get_default_graph())
         print("start train cnn Model")
         current_epoch = 0
         while current_epoch < config.train_epcohs:
@@ -207,7 +210,8 @@ def trainModelAndSaveModel(trainDataX=None,trainDataY=None,valiDataX=None,valiDa
                 train_batch_data_x = train_data[offset:offset+config.mini_batch_size,...]
                 train_batch_data_y = train_labels[offset:offset+config.mini_batch_size,...]
                 train_feed_dict = {train_x_node: train_batch_data_x, train_y_node: train_batch_data_y}
-                _,train_loss_result = sess.run([train_step,train_loss],feed_dict=train_feed_dict)
+                summary,_,train_loss_result = sess.run([merged_summary_op,train_step,train_loss],feed_dict=train_feed_dict)
+                summary_writer.add_summary(summary,current_epoch*trainDataX.shape[0]+batch_index)
                 pass
             validata_predict = eval_model_batchs(data=valiDataX,sess=sess,eval_predict_op=eval_predict,eval_node_placehold=eval_x_node)
             validate_error = error_measure(predictions=validata_predict,labels=valiDataY)
@@ -272,8 +276,8 @@ def test():
 
 
 def main():
-    #train()
-    test()
+    train()
+    # test()
     pass
 
 
